@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # ML Model Service - Trains and serves the machine learning model
+  ml-model:
+    build:
+      context: ./ml-model
+      dockerfile: Dockerfile
+    container_name: titanic-ml-model
+    volumes:
+      - ./ml-model/models:/app/models
+      - ./ml-model/data:/app/data
+    networks:
+      - titanic-network
+    # This service runs once to train the model, then exits
+    command: ["python", "train.py"]
+
+  # FastAPI Backend Service
+  fastapi-backend:
+    build:
+      context: ./fastapi-backend
+      dockerfile: Dockerfile
+    container_name: titanic-fastapi-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ml-model/models:/app/models:ro  # Mount trained models as read-only
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - ml-model
+    networks:
+      - titanic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Java Frontend Service
+  java-frontend:
+    build:
+      context: ./java-frontend
+      dockerfile: Dockerfile
+    container_name: titanic-java-frontend
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    depends_on:
+      - fastapi-backend
+    networks:
+      - titanic-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  titanic-network:
+    driver: bridge
+
+volumes:
+  ml-models:
+    driver: local
+  ml-data:
+    driver: local

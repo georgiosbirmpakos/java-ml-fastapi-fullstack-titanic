@@ -17,8 +17,11 @@ import java.util.concurrent.TimeUnit;
 public class TitanicApiService {
     
     private static final Logger logger = LoggerFactory.getLogger(TitanicApiService.class);
-    
-    private static final String API_BASE_URL = "http://localhost:8000";
+
+    //  FOR LOCAL DEPLOYMENT!
+    // private static final String API_BASE_URL = "http://localhost:8000";
+    // FOR DOCKER COMPOSE DEPLOYMENT!
+    private static final String API_BASE_URL = "http://fastapi-backend:8000";
     private static final String PREDICT_ENDPOINT = "/predict";
     private static final String HEALTH_ENDPOINT = "/health";
     

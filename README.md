@@ -2,6 +2,18 @@
 
 A full-stack machine learning application that predicts passenger survival on the Titanic using historical data. The system consists of a Python ML model, FastAPI backend, and Java frontend with modern web technologies.
 
+## ⚡ Quick Start (30 seconds)
+
+```bash
+git clone <repository-url>
+cd java-ml-fastapi-fullstack-titanic
+docker-compose up -d
+```
+
+**Access**: http://localhost:8080 (Frontend) | http://localhost:8000 (API)
+
+> **That's it!** The application automatically downloads data, trains the ML model, and starts all services.
+
 ## 🚢 Project Overview
 
 This project demonstrates a complete machine learning pipeline from data preprocessing to web deployment:
@@ -42,50 +54,141 @@ test_project/
 └── README.md                # This file
 ```
 
-## 🚀 Quick Start
+## 🚀 Quick Start - Plug & Play Setup
 
 ### Prerequisites
 
-- **Java 17+** with Maven
-- **Python 3.8+** with pip
-- **Tomcat 10** (Jakarta EE compatible)
+- **Docker Desktop** (Windows/Mac) or **Docker Engine** (Linux)
+- **Docker Compose** v2.0+
+- **8GB+ RAM** (recommended)
 - **Git**
 
-### 1. Clone the Repository
+### One-Command Setup
 
+1. **Clone the Repository**
+   ```bash
+   git clone <repository-url>
+   cd java-ml-fastapi-fullstack-titanic
+   ```
+
+2. **Run the Complete Application**
+   
+   **Windows:**
+   ```cmd
+   .\docker-build.bat
+   .\docker-run.bat
+   ```
+   
+   **Linux/Mac:**
+   ```bash
+   chmod +x docker-build.sh docker-run.sh
+   ./docker-build.sh
+   ./docker-run.sh
+   ```
+   
+   **Or using Docker Compose directly:**
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Access the Application**
+   - **Frontend**: http://localhost:8080
+   - **Backend API**: http://localhost:8000
+   - **API Documentation**: http://localhost:8000/docs
+
+### What Happens Automatically
+
+✅ **ML Model Training**: Downloads Titanic dataset and trains Random Forest model  
+✅ **FastAPI Backend**: Starts REST API server with trained model  
+✅ **Java Frontend**: Builds and deploys JSF/PrimeFaces web application  
+✅ **Network Configuration**: Sets up container communication  
+✅ **Health Monitoring**: Built-in health checks for all services  
+
+### Production Deployment
+
+For production with nginx reverse proxy:
 ```bash
-git clone <repository-url>
-cd test_project
+# Windows
+.\docker-run.bat --prod
+
+# Linux/Mac  
+./docker-run.bat --prod
+
+# Or directly
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### 2. Train the ML Model
+**Production Access Points:**
+- **Frontend**: http://localhost
+- **API**: http://localhost/api
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**❌ "Failed to get prediction from API"**
+- **Solution**: Ensure all containers are running: `docker-compose ps`
+- **Check**: FastAPI backend logs: `docker-compose logs fastapi-backend`
+
+**❌ "Port already in use"**
+- **Solution**: Stop conflicting services or change ports in `docker-compose.yml`
+- **Check**: `netstat -an | findstr :8000` (Windows) or `lsof -i :8000` (Linux/Mac)
+
+**❌ "ML model not loading"**
+- **Solution**: Rebuild ML model: `docker-compose up --build ml-model`
+- **Check**: Model files exist in `ml-model/models/` directory
+
+**❌ "Java frontend not starting"**
+- **Solution**: Check Java logs: `docker-compose logs java-frontend`
+- **Increase memory**: Edit `docker-compose.yml` JAVA_OPTS to `-Xmx1024m -Xms512m`
+
+### Service Management
 
 ```bash
-cd ml-model
-pip install -r requirements.txt
-python train.py
+# Check service status
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+
+# Restart specific service
+docker-compose restart fastapi-backend
+
+# Stop all services
+docker-compose down
+
+# Rebuild and restart
+docker-compose up --build -d
 ```
 
-### 3. Start the FastAPI Backend
+### Manual Setup (Alternative)
 
-```bash
-cd fastapi-backend
-pip install fastapi uvicorn scikit-learn pandas
-python app.py
-```
+If you prefer to run without Docker:
 
-The API will be available at: `http://localhost:8000`
+1. **Train ML Model**: `cd ml-model && pip install -r requirements.txt && python train.py`
+2. **Start FastAPI**: `cd fastapi-backend && pip install -r requirements.txt && python app.py`
+3. **Update Java Config**: Change `API_BASE_URL` to `http://localhost:8000` in `TitanicApiService.java`
+4. **Build Java Frontend**: `cd java-frontend && mvn clean package`
+5. **Deploy to Tomcat**: Copy `target/titanic-1.0.0.war` to Tomcat webapps directory
 
-### 4. Build and Deploy Java Frontend
+For detailed Docker documentation, see [DOCKER.md](DOCKER.md).
 
-```bash
-cd java-frontend
-mvn clean package
-```
+## 🎬 Demo
 
-Deploy the generated `target/titanic-1.0.0.war` to your Tomcat server.
+Once running, you can:
 
-Access the application at: `http://localhost:8080/titanic-1.0.0/`
+1. **Open the Frontend**: Navigate to http://localhost:8080
+2. **Test Sample Data**: Click "Load Sample Passengers" to see historical Titanic passengers
+3. **Make Predictions**: Fill out the form with passenger details and get survival predictions
+4. **Check API Health**: Monitor the backend API status in real-time
+5. **Explore API**: Visit http://localhost:8000/docs for interactive API documentation
+
+### Sample Prediction
+
+Try predicting survival for:
+- **John Astor** (1st class male, age 47): Low survival probability
+- **Charlotte Cardeza** (1st class female, age 58): High survival probability  
+- **Bridget Delia** (3rd class female, age 30): Medium survival probability
 
 ## 🎯 Features
 

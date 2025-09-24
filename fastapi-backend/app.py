@@ -12,24 +12,18 @@ import sys
 import pandas as pd
 import numpy as np
 
-# Add the ml-model directory to Python path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-ml_model_path = os.path.join(current_dir, '..', 'ml-model')
-sys.path.insert(0, ml_model_path)
-
-# Change to ml-model directory to load the model
-original_cwd = os.getcwd()
-os.chdir(ml_model_path)
-
 # Load the trained model and encoders
+# In Docker, models are mounted at /app/models
+models_path = '/app/models'
+
 try:
-    with open('models/titanic_model.pkl', 'rb') as f:
+    with open(os.path.join(models_path, 'titanic_model.pkl'), 'rb') as f:
         model = pickle.load(f)
     
-    with open('models/encoders.pkl', 'rb') as f:
+    with open(os.path.join(models_path, 'encoders.pkl'), 'rb') as f:
         encoders = pickle.load(f)
     
-    with open('models/feature_columns.pkl', 'rb') as f:
+    with open(os.path.join(models_path, 'feature_columns.pkl'), 'rb') as f:
         feature_columns = pickle.load(f)
     
     print("✅ Model loaded successfully!")
@@ -37,13 +31,12 @@ try:
     
 except Exception as e:
     print(f"❌ Error loading model: {e}")
+    print(f"Models path: {models_path}")
+    print(f"Available files: {os.listdir(models_path) if os.path.exists(models_path) else 'Path does not exist'}")
     model = None
     encoders = None
     feature_columns = None
     model_loaded = False
-
-# Change back to original directory
-os.chdir(original_cwd)
 
 # Initialize FastAPI app
 app = FastAPI(
