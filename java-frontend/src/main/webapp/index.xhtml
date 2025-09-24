@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Titanic Survival Prediction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <h:outputStylesheet name="css/titanic.css"/>
+</h:head>
+
+<h:body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Titanic Survival Prediction</h1>
+            <p class="subtitle">Predict passenger survival using Machine Learning</p>
+        </div>
+
+        <!-- Messages -->
+        <p:messages id="messages" showDetail="true" closable="true" 
+                   showSummary="true" autoUpdate="true"/>
+
+        <!-- API Status -->
+        <p:panel header="API Status" styleClass="status-panel">
+            <div class="api-status">
+                <h:form>
+                    <p:commandButton value="Check API Health"
+                                     action="#{titanicBean.checkApiHealth()}"
+                                     icon="pi pi-refresh"
+                                     styleClass="p-button-outlined"/>
+                </h:form>
+                <div id="api-health-status" class="status-info">
+                    <p:outputLabel value="Status: " styleClass="status-label"/>
+                    <p:outputLabel value="#{titanicBean.apiHealthy ? 'HEALTHY' : 'UNHEALTHY'}"
+                                    styleClass="#{titanicBean.apiHealthy ? 'status-healthy' : 'status-unhealthy'}"/>
+                </div>
+                <p:outputLabel value="#{titanicBean.apiStatusMessage}"
+                                styleClass="status-message"/>
+            </div>
+        </p:panel>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Passenger Form -->
+            <p:panel header="Passenger Information" styleClass="form-panel">
+                <h:form id="passengerForm">
+                    <div class="form-grid">
+                        <!-- Passenger Class -->
+                        <div class="form-group">
+                            <p:outputLabel for="pclass" value="Passenger Class *"/>
+                            <p:selectOneMenu id="pclass" 
+                                           value="#{titanicBean.passenger.pclass}"
+                                           required="true"
+                                           requiredMessage="Please select passenger class">
+                                <f:selectItem itemLabel="Select Class" itemValue=""/>
+                                <f:selectItem itemLabel="1st Class" itemValue="1"/>
+                                <f:selectItem itemLabel="2nd Class" itemValue="2"/>
+                                <f:selectItem itemLabel="3rd Class" itemValue="3"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="form-group">
+                            <p:outputLabel for="name" value="Name *"/>
+                            <p:inputText id="name" 
+                                       value="#{titanicBean.passenger.name}"
+                                       required="true"
+                                       requiredMessage="Please enter passenger name"
+                                       placeholder="Enter full name"/>
+                        </div>
+
+                        <!-- Sex -->
+                        <div class="form-group">
+                            <p:outputLabel for="sex" value="Sex *"/>
+                            <p:selectOneRadio id="sex" 
+                                           value="#{titanicBean.passenger.sex}"
+                                           required="true"
+                                           requiredMessage="Please select sex">
+                                <f:selectItem itemLabel="Male" itemValue="male"/>
+                                <f:selectItem itemLabel="Female" itemValue="female"/>
+                            </p:selectOneRadio>
+                        </div>
+
+                        <!-- Age -->
+                        <div class="form-group">
+                            <p:outputLabel for="age" value="Age"/>
+                            <p:inputNumber id="age" 
+                                         value="#{titanicBean.passenger.age}"
+                                         minValue="0"
+                                         maxValue="120"
+                                         decimalPlaces="1"
+                                         placeholder="Enter age"/>
+                        </div>
+
+                        <!-- Siblings/Spouses -->
+                        <div class="form-group">
+                            <p:outputLabel for="sibsp" value="Siblings/Spouses"/>
+                            <p:inputNumber id="sibsp" 
+                                         value="#{titanicBean.passenger.sibsp}"
+                                         minValue="0"
+                                         maxValue="8"
+                                         placeholder="0"/>
+                        </div>
+
+                        <!-- Parents/Children -->
+                        <div class="form-group">
+                            <p:outputLabel for="parch" value="Parents/Children"/>
+                            <p:inputNumber id="parch" 
+                                         value="#{titanicBean.passenger.parch}"
+                                         minValue="0"
+                                         maxValue="6"
+                                         placeholder="0"/>
+                        </div>
+
+                        <!-- Fare -->
+                        <div class="form-group">
+                            <p:outputLabel for="fare" value="Fare"/>
+                            <p:inputNumber id="fare" 
+                                         value="#{titanicBean.passenger.fare}"
+                                         minValue="0"
+                                         decimalPlaces="2"
+                                         placeholder="Enter fare amount"/>
+                        </div>
+
+                        <!-- Embarked -->
+                        <div class="form-group">
+                            <p:outputLabel for="embarked" value="Embarked"/>
+                            <p:selectOneMenu id="embarked" 
+                                           value="#{titanicBean.passenger.embarked}">
+                                <f:selectItem itemLabel="Southampton (S)" itemValue="S"/>
+                                <f:selectItem itemLabel="Cherbourg (C)" itemValue="C"/>
+                                <f:selectItem itemLabel="Queenstown (Q)" itemValue="Q"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <p:commandButton value="Predict Survival"
+                                         action="#{titanicBean.predictSurvival()}"
+                                         icon="pi pi-search"
+                                         styleClass="p-button-success"
+                                         update="predictionPanel messages"/>
+                        <p:commandButton value="Reset Form"
+                                         action="#{titanicBean.resetForm()}"
+                                         icon="pi pi-refresh"
+                                         styleClass="p-button-secondary"
+                                         update="passengerForm"/>
+                    </div>
+                </h:form>
+            </p:panel>
+
+            <!-- Sample Passengers -->
+            <p:panel header="Sample Passengers" styleClass="sample-panel">
+                <div class="sample-passengers">
+                    <h:form>
+                        <p:dataTable value="#{titanicBean.samplePassengers}"
+                                     var="sample"
+                                     styleClass="sample-table">
+                            <p:column headerText="Class">
+                                <h:outputText value="#{sample.pclass}"/>
+                            </p:column>
+                            <p:column headerText="Name">
+                                <h:outputText value="#{sample.name}"/>
+                            </p:column>
+                            <p:column headerText="Sex">
+                                <h:outputText value="#{sample.sex}"/>
+                            </p:column>
+                            <p:column headerText="Age">
+                                <h:outputText value="#{sample.age}"/>
+                            </p:column>
+                            <p:column headerText="Action">
+                                <p:commandButton value="Load"
+                                                 action="#{titanicBean.loadSamplePassenger(sample)}"
+                                                 icon="pi pi-arrow-right"
+                                                 styleClass="p-button-outlined p-button-sm"
+                                                 update=":passengerForm"/>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </div>
+            </p:panel>
+        </div>
+
+        <!-- Prediction Result -->
+        <p:panel id="predictionPanel" 
+                header="Prediction Result" 
+                styleClass="prediction-panel"
+                rendered="#{titanicBean.predictionCompleted}">
+            <div class="prediction-result #{titanicBean.predictionCssClass}">
+                <div class="prediction-icon">
+                    <i class="#{titanicBean.predictionIcon}"></i>
+                </div>
+                <div class="prediction-details">
+                    <h3>#{titanicBean.predictionResult.survivalStatus}</h3>
+                    <p class="probability">
+                        Survival Probability: 
+                        <h:outputText value="#{titanicBean.predictionResult.survivalProbability * 100}">
+                            <f:convertNumber maxFractionDigits="2"/>
+                        </h:outputText>%
+                    </p>
+                    <p class="probability">
+                        Death Probability: 
+                        <h:outputText value="#{titanicBean.predictionResult.deathProbability * 100}">
+                            <f:convertNumber maxFractionDigits="2"/>
+                        </h:outputText>%
+                    </p>
+                </div>
+            </div>
+        </p:panel>
+    </div>
+</h:body>
+</html>
