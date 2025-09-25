@@ -34,10 +34,10 @@ class Health(BaseModel):
 async def health():
     return Health(status="ok")
 
-@app.post("/test")
-async def test_endpoint(request: dict):
-    print(f"Test endpoint received: {request}")
-    return {"status": "ok", "received": request}
+@app.get("/test")
+async def test_endpoint():
+    print("Test endpoint called")
+    return {"status": "ok", "message": "Chatbot service is running"}
 
 @app.post("/predict-nl", response_model=PredictNLResponse)
 async def predict_nl(req: PredictNLRequest):
@@ -88,4 +88,4 @@ The prediction is based on historical data patterns from the Titanic disaster, c
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8010)
+    uvicorn.run(app, host="0.0.0.0", port=8010)

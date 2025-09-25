@@ -1,6 +1,6 @@
-# Titanic Frontend - Java EE Application
+# Titanic Frontend - Java EE Application with AI Integration
 
-A modern Java EE frontend application for the Titanic Survival Prediction system using JSF, PrimeFaces, and OkHttp.
+A modern Java EE frontend application for the Titanic Survival Prediction system featuring both traditional form-based predictions and an innovative AI-powered chatbot interface using JSF, PrimeFaces, and advanced HTTP clients.
 
 ## 🏗️ Architecture
 
@@ -20,16 +20,19 @@ java-frontend/
 │   │   ├── Passenger.java       # Passenger data model
 │   │   └── PredictionResult.java # Prediction result model
 │   ├── service/                  # Business logic
-│   │   └── TitanicApiService.java # API communication service
+│   │   ├── TitanicApiService.java # Traditional ML API service
+│   │   └── ChatbotService.java  # AI chatbot API service
 │   └── managedbean/              # JSF managed beans
-│       └── TitanicPredictionBean.java # Main application bean
+│       ├── TitanicPredictionBean.java # Traditional ML bean
+│       └── AIAgentBean.java      # AI chatbot bean
 ├── src/main/webapp/
 │   ├── WEB-INF/
 │   │   ├── web.xml              # Web application configuration
 │   │   └── beans.xml            # CDI configuration
 │   ├── resources/css/
 │   │   └── titanic.css          # Custom styling
-│   └── index.xhtml              # Main application page
+│   ├── index.xhtml              # Traditional ML approach page
+│   └── ai_agent.xhtml           # AI chatbot approach page
 ├── pom.xml                      # Maven configuration
 └── README.md                    # This file
 ```
@@ -41,6 +44,7 @@ java-frontend/
 - **Java 17** or higher
 - **Maven 3.6+**
 - **FastAPI Backend** running on `http://localhost:8000`
+- **AI Chatbot Service** running on `http://localhost:8010`
 
 ### Installation & Setup
 
@@ -72,11 +76,17 @@ mvn jetty:run -Djetty.scanIntervalSeconds=10
 
 ## 🎯 Features
 
+### Dual Prediction Interfaces
+- **Traditional ML Approach**: Form-based passenger data input with structured predictions
+- **AI Chatbot Approach**: Natural language descriptions with intelligent predictions and explanations
+
 ### Core Functionality
 - **Passenger Data Input**: Comprehensive form for passenger information
-- **Real-time Prediction**: Live survival prediction via API
-- **Sample Data**: Pre-loaded sample passengers for testing
-- **API Health Check**: Monitor backend API status
+- **Natural Language Processing**: AI-powered chatbot for conversational predictions
+- **Real-time Prediction**: Live survival prediction via both APIs
+- **Preset Examples**: 5 interactive passenger scenarios for quick testing
+- **Sample Data**: Pre-loaded sample passengers for traditional approach
+- **API Health Check**: Monitor both backend and chatbot API status
 - **Responsive Design**: Mobile-friendly interface
 
 ### UI Components

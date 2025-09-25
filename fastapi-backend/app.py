@@ -16,7 +16,12 @@ import numpy as np
 # For local development, models are in ../ml-model/models/
 # For Docker, models are mounted at /app/models
 current_dir = os.path.dirname(os.path.abspath(__file__))
-models_path = os.path.join(current_dir, '..', 'ml-model', 'models')
+if os.path.exists('/app/models'):
+    # Docker environment
+    models_path = '/app/models'
+else:
+    # Local development
+    models_path = os.path.join(current_dir, '..', 'ml-model', 'models')
 
 try:
     with open(os.path.join(models_path, 'titanic_model.pkl'), 'rb') as f:

@@ -15,7 +15,7 @@ import java.time.Duration;
 @ApplicationScoped
 public class ChatbotService {
     
-    private static final String CHATBOT_BASE_URL = "http://localhost:8010";
+        private static final String CHATBOT_BASE_URL = "http://chatbot-service:8010";
     private static final String PREDICT_NL_ENDPOINT = "/predict-nl";
     
     private final HttpClient httpClient;

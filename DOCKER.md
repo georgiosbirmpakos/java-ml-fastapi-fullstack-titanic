@@ -49,7 +49,7 @@ docker-compose down
 
 ## 🏗️ Architecture Overview
 
-The Docker setup consists of three main services:
+The Docker setup consists of four main services:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -57,6 +57,20 @@ The Docker setup consists of three main services:
 │   (Tomcat 10)   │◄──►│   (Python 3.11) │◄──►│   (Scikit-learn)│
 │   Port: 8080     │    │   Port: 8000     │    │   Training Only │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                        ▲                        ▲
+         │                        │                        │
+         ▼                        │                        │
+┌─────────────────┐              │                        │
+│  AI Chatbot     │──────────────┘                        │
+│  (Python 3.11) │                                       │
+│  Port: 8010     │                                       │
+└─────────────────┘                                       │
+         │                                                │
+         ▼                                                │
+┌─────────────────┐                                       │
+│     Nginx       │───────────────────────────────────────┘
+│  (Port 80/443)  │
+└─────────────────┘
 ```
 
 ## 📁 Docker Files Structure
@@ -76,6 +90,11 @@ The Docker setup consists of three main services:
 │   ├── Dockerfile              # FastAPI container
 │   ├── requirements.txt        # Python dependencies
 │   └── .dockerignore           # API-specific ignores
+├── chatbot-service/
+│   ├── Dockerfile              # AI Chatbot container
+│   ├── requirements.txt        # Python dependencies
+│   ├── .env                    # OpenAI API configuration
+│   └── .dockerignore           # Chatbot-specific ignores
 └── java-frontend/
     ├── Dockerfile              # Java/Tomcat container
     └── .dockerignore           # Java-specific ignores
@@ -122,7 +141,31 @@ The Docker setup consists of three main services:
 - `POST /predict` - Single prediction
 - `GET /docs` - API documentation
 
-### 3. Java Frontend Service (`java-frontend`)
+### 3. AI Chatbot Service (`chatbot-service`)
+
+**Purpose**: AI-powered chatbot for natural language passenger predictions
+
+**Image**: `titanic-chatbot-service`
+**Base**: `python:3.11-slim`
+**Port**: `8010`
+**Environment**: 
+- `OPENAI_API_KEY` (required)
+- `OPENAI_MODEL=gpt-4o-mini` (default)
+
+**Features**:
+- OpenAI GPT-4o mini integration
+- LangChain-based natural language processing
+- Manual fallback extraction rules
+- FastAPI integration with ML backend
+- Health monitoring and status endpoints
+
+**Endpoints**:
+- `GET /test` - Health check
+- `GET /health` - Service health status
+- `POST /predict-nl` - Natural language prediction
+- `GET /docs` - API documentation
+
+### 4. Java Frontend Service (`java-frontend`)
 
 **Purpose**: Web application frontend using JSF and PrimeFaces
 
@@ -133,11 +176,13 @@ The Docker setup consists of three main services:
 - `JAVA_OPTS=-Xmx512m -Xms256m`
 
 **Features**:
+- Dual interface: Traditional ML and AI chatbot approaches
 - Modern web UI with PrimeFaces
-- Form validation
-- Real-time API communication
+- Form validation and natural language processing
+- Real-time API communication with both services
 - Responsive design
-- Sample passenger data
+- Sample passenger data and preset examples
+- Interactive AI chatbot with 5 preset scenarios
 
 ## 🚀 Running Modes
 
@@ -228,13 +273,17 @@ docker-compose exec ml-model bash
 - **Network**: `titanic-network` (bridge)
 - **Frontend**: `http://localhost:8080`
 - **Backend**: `http://localhost:8000`
+- **Chatbot**: `http://localhost:8010`
 - **API Docs**: `http://localhost:8000/docs`
+- **Chatbot API Docs**: `http://localhost:8010/docs`
 
 ### Production Network
 - **Network**: `titanic-network` (bridge)
 - **Frontend**: `http://localhost` (via nginx)
 - **Backend**: `http://localhost/api` (via nginx)
+- **Chatbot**: `http://localhost/chatbot` (via nginx)
 - **Direct Backend**: `http://localhost:8000`
+- **Direct Chatbot**: `http://localhost:8010`
 
 ## 📊 Monitoring and Health Checks
 
@@ -243,6 +292,9 @@ docker-compose exec ml-model bash
 ```bash
 # FastAPI backend health
 curl http://localhost:8000/health
+
+# AI Chatbot service health
+curl http://localhost:8010/test
 
 # Java frontend health
 curl http://localhost:8080/

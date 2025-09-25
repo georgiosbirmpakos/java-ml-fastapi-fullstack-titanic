@@ -1,7 +1,7 @@
 import httpx
 from .schemas import Passenger
 
-FASTAPI_BASE_URL = "http://localhost:8000"
+FASTAPI_BASE_URL = "http://fastapi-backend:8000"
 
 async def predict_with_backend(passenger: Passenger) -> dict:
     url = f"{FASTAPI_BASE_URL}/predict"
