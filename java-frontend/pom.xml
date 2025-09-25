@@ -68,6 +68,25 @@
             <version>${gson.version}</version>
         </dependency>
         
+        <!-- Jackson for JSON parsing (used by ChatbotService) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        
         <!-- Servlet API -->
         <dependency>
             <groupId>jakarta.servlet</groupId>

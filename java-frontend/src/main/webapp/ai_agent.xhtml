@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>AI Agent Approach - Titanic Survival Prediction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <h:outputStylesheet name="css/titanic.css"/>
+</h:head>
+
+<h:body>
+    <div>
+        <!-- Header -->
+        <div class="header">
+            <h1>AI Agent Approach</h1>
+            <p class="subtitle">Advanced AI-powered survival prediction using intelligent agents</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <h:form>
+                <p:commandButton value="Machine Learning Approach"
+                                 onclick="window.location.href='index.xhtml'"
+                                 icon="pi pi-cog"
+                                 styleClass="nav-button"/>
+                <p:commandButton value="AI Agent Approach"
+                                 icon="pi pi-android"
+                                 styleClass="nav-button active"
+                                 disabled="true"/>
+            </h:form>
+        </div>
+
+        <!-- Main Content -->
+        <div>
+            <p:panel header="AI Agent Prediction System" styleClass="form-panel">
+
+                <!-- ONE FORM AROUND BOTH COLUMNS -->
+                <h:form id="chatbotForm">
+
+                    <!-- TWO COLUMNS -->
+                    <p:panelGrid columns="2">
+
+                        <!-- LEFT COLUMN: Presets + Inputs -->
+                        <h:panelGroup>
+                            <div class="preset-examples">
+                                <h4>Quick Examples (Click to Load):</h4>
+                                <div class="preset-grid">
+                                    <div class="preset-card" onclick="loadPreset('Mr. John Smith, a 35-year-old male passenger in first class, paid 50 pounds for his ticket and embarked at Southampton. He was traveling alone.')">
+                                        <div class="preset-icon">👨‍💼</div>
+                                        <div class="preset-title">First Class Gentleman</div>
+                                        <div class="preset-desc">Male, 35, First Class, £50</div>
+                                    </div>
+
+                                    <div class="preset-card" onclick="loadPreset('A young woman, 22 years old, third class passenger from Ireland traveling with her family. She paid 7 pounds for her ticket.')">
+                                        <div class="preset-icon">👩‍🦱</div>
+                                        <div class="preset-title">Third Class Woman</div>
+                                        <div class="preset-desc">Female, 22, Third Class, £7</div>
+                                    </div>
+
+                                    <div class="preset-card" onclick="loadPreset('Little girl, 8 years old, second class with her parents, expensive ticket worth 30 pounds, embarked at Cherbourg.')">
+                                        <div class="preset-icon">👧</div>
+                                        <div class="preset-title">Young Girl</div>
+                                        <div class="preset-desc">Female, 8, Second Class, £30</div>
+                                    </div>
+
+                                    <div class="preset-card" onclick="loadPreset('Captain Smith, 60 years old, first class passenger with a very expensive ticket worth 100 pounds, embarked at Southampton.')">
+                                        <div class="preset-icon">👨‍✈️</div>
+                                        <div class="preset-title">Captain</div>
+                                        <div class="preset-desc">Male, 60, First Class, £100</div>
+                                    </div>
+
+                                    <div class="preset-card" onclick="loadPreset('A young man, 25 years old, third class passenger from Italy, traveling alone, paid only 5 pounds for his ticket.')">
+                                        <div class="preset-icon">👨</div>
+                                        <div class="preset-title">Young Immigrant</div>
+                                        <div class="preset-desc">Male, 25, Third Class, £5</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="input-section">
+                                <h:outputLabel for="userMessage" value="Describe a Titanic passenger:" styleClass="input-label"/>
+
+                                <p:inputTextarea id="userMessage"
+                                                 value="#{aiAgentBean.userMessage}"
+                                                 placeholder="e.g., 'Mr. John Smith, a 35-year-old male passenger in first class, paid 50 pounds for his ticket and embarked at Southampton. He was traveling alone.'"
+                                                 rows="3"
+                                                 styleClass="message-input"/>
+
+                                <div class="button-group">
+                                    <p:commandButton value="Predict Survival"
+                                                     action="#{aiAgentBean.predictSurvival}"
+                                                     icon="pi pi-android"
+                                                     styleClass="predict-button"
+                                                     process="@form"
+                                                     update=":chatbotForm:resultArea :chatbotForm"/>
+
+                                    <p:commandButton value="Clear"
+                                                     action="#{aiAgentBean.clearForm}"
+                                                     icon="pi pi-refresh"
+                                                     styleClass="clear-button"
+                                                     immediate="true"
+                                                     process="@this"
+                                                     update=":chatbotForm:resultArea :chatbotForm"/>
+                                </div>
+                            </div>
+                        </h:panelGroup>
+
+                        <!-- RIGHT COLUMN: Results -->
+                        <h:panelGroup>
+                            <p:outputPanel id="resultArea" layout="block">
+                                <!-- Error Display -->
+                                <p:panel id="errorPanel" rendered="#{aiAgentBean.hasError}" styleClass="error-panel">
+                                    <i class="pi pi-exclamation-triangle"></i>
+                                    <h:outputText value="#{aiAgentBean.errorMessage}"/>
+                                </p:panel>
+
+                                <!-- Response Display -->
+                                <p:panel id="responsePanel" rendered="#{aiAgentBean.hasResponse}" styleClass="response-panel">
+                                    <div class="response-header">
+                                        <h3>AI Analysis Result</h3>
+                                        <div class="survival-status #{aiAgentBean.response.survivalStatusClass}">
+                                            <i class="pi pi-#{aiAgentBean.response.survived ? 'check-circle' : 'times-circle'}"></i>
+                                            #{aiAgentBean.response.survivalStatus}
+                                        </div>
+                                    </div>
+
+                                    <div class="response-content">
+                                        <!-- Passenger Details -->
+                                        <div class="passenger-details">
+                                            <h4>Passenger Information</h4>
+                                            <div class="detail-grid">
+                                                <div class="detail-item">
+                                                    <span class="label">Name:</span>
+                                                    <span class="value">#{aiAgentBean.response.passenger.name}</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="label">Class:</span>
+                                                    <span class="value">#{aiAgentBean.response.passenger.classText}</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="label">Gender:</span>
+                                                    <span class="value">#{aiAgentBean.response.passenger.sex}</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="label">Age:</span>
+                                                    <span class="value">#{aiAgentBean.response.passenger.age != null ? aiAgentBean.response.passenger.age : 'Unknown'}</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="label">Fare:</span>
+                                                    <span class="value">£#{aiAgentBean.response.passenger.fare != null ? aiAgentBean.response.passenger.fare : 'Unknown'}</span>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <span class="label">Embarked:</span>
+                                                    <span class="value">#{aiAgentBean.response.passenger.embarkedText}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Prediction Confidence -->
+                                        <div class="confidence-section">
+                                            <h4>Prediction Confidence</h4>
+                                            <div class="confidence-bars">
+                                                <div class="confidence-item">
+                                                    <span class="confidence-label">Survival Probability:</span>
+                                                    <div class="confidence-bar">
+                                                        <div class="confidence-fill survived"
+                                                             style="width: #{aiAgentBean.response.survivalProbability * 100}%"></div>
+                                                    </div>
+                                                    <span class="confidence-value">#{aiAgentBean.response.survivalProbability * 100}%</span>
+                                                </div>
+                                                <div class="confidence-item">
+                                                    <span class="confidence-label">Death Probability:</span>
+                                                    <div class="confidence-bar">
+                                                        <div class="confidence-fill died"
+                                                             style="width: #{aiAgentBean.response.deathProbability * 100}%"></div>
+                                                    </div>
+                                                    <span class="confidence-value">#{aiAgentBean.response.deathProbability * 100}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- AI Discussion -->
+                                        <div class="discussion-section">
+                                            <h4>AI Analysis</h4>
+                                            <div class="discussion-content">
+                                                <h:outputText value="#{aiAgentBean.response.discussion}"
+                                                              escape="false"
+                                                              styleClass="discussion-text"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p:panel>
+                            </p:outputPanel>
+                        </h:panelGroup>
+
+                    </p:panelGrid>
+
+                </h:form>
+
+            </p:panel>
+        </div>
+    </div>
+
+    <script>
+        function loadPreset(message) {
+            var textarea = document.querySelector('textarea[id*="userMessage"]');
+            if (textarea) {
+                textarea.value = message;
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+    </script>
+</h:body>
+</html>

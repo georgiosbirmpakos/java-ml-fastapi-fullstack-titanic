@@ -11,11 +11,25 @@
 </h:head>
 
 <h:body>
-    <div class="container">
+    <div>
         <!-- Header -->
         <div class="header">
             <h1>Titanic Survival Prediction</h1>
             <p class="subtitle">Predict passenger survival using Machine Learning</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <h:form>
+                <p:commandButton value="Machine Learning Approach" 
+                                 icon="pi pi-cog"
+                                 styleClass="nav-button active"
+                                 disabled="true"/>
+                <p:commandButton value="AI Agent Approach" 
+                                 onclick="window.location.href='ai_agent.xhtml'"
+                                 icon="pi pi-android"
+                                 styleClass="nav-button"/>
+            </h:form>
         </div>
 
         <!-- Messages -->

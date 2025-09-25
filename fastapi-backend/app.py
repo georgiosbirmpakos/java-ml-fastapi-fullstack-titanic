@@ -13,8 +13,10 @@ import pandas as pd
 import numpy as np
 
 # Load the trained model and encoders
-# In Docker, models are mounted at /app/models
-models_path = '/app/models'
+# For local development, models are in ../ml-model/models/
+# For Docker, models are mounted at /app/models
+current_dir = os.path.dirname(os.path.abspath(__file__))
+models_path = os.path.join(current_dir, '..', 'ml-model', 'models')
 
 try:
     with open(os.path.join(models_path, 'titanic_model.pkl'), 'rb') as f:
@@ -105,9 +107,13 @@ def preprocess_passenger(passenger_data: dict) -> pd.DataFrame:
     
     # Fare groups
     try:
-        df['FareGroup'] = pd.qcut(df['Fare'], q=4, labels=['Low', 'Medium', 'High', 'VeryHigh'], duplicates='drop')
-    except ValueError:
-        df['FareGroup'] = pd.cut(df['Fare'], bins=4, labels=['Low', 'Medium', 'High', 'VeryHigh'])
+        if len(df) > 1:
+            df['FareGroup'] = pd.qcut(df['Fare'], q=4, labels=['Low', 'Medium', 'High', 'VeryHigh'], duplicates='drop')
+        else:
+            # For single data point, use simple binning
+            df['FareGroup'] = pd.cut(df['Fare'], bins=[0, 7.91, 14.45, 31, 1000], labels=['Low', 'Medium', 'High', 'VeryHigh'])
+    except (ValueError, TypeError):
+        df['FareGroup'] = pd.cut(df['Fare'], bins=[0, 7.91, 14.45, 31, 1000], labels=['Low', 'Medium', 'High', 'VeryHigh'])
     df['FareGroup'].fillna('Medium', inplace=True)
     
     return df

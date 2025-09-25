@@ -1,6 +1,6 @@
 # Titanic Survival Prediction System
 
-A full-stack machine learning application that predicts passenger survival on the Titanic using historical data. The system consists of a Python ML model, FastAPI backend, and Java frontend with modern web technologies.
+A full-stack machine learning application that predicts passenger survival on the Titanic using historical data. The system consists of a Python ML model, FastAPI backend, Java frontend, and an AI-powered chatbot for natural language predictions using OpenAI's GPT-4o mini.
 
 ## ⚡ Quick Start (30 seconds)
 
@@ -10,7 +10,7 @@ cd java-ml-fastapi-fullstack-titanic
 docker-compose up -d
 ```
 
-**Access**: http://localhost:8080 (Frontend) | http://localhost:8000 (API)
+**Access**: http://localhost:8080 (Frontend) | http://localhost:8000 (API) | http://localhost:8010 (AI Chatbot)
 
 > **That's it!** The application automatically downloads data, trains the ML model, and starts all services.
 
@@ -21,7 +21,8 @@ This project demonstrates a complete machine learning pipeline from data preproc
 - **Machine Learning Model**: Trained Random Forest classifier for survival prediction
 - **FastAPI Backend**: RESTful API serving ML predictions with health monitoring
 - **Java Frontend**: Modern web application using JSF, PrimeFaces, and Jakarta EE
-- **Full Integration**: End-to-end prediction workflow with real-time API communication
+- **AI Chatbot Service**: Natural language processing using OpenAI GPT-4o mini and LangChain
+- **Full Integration**: End-to-end prediction workflow with both structured forms and conversational AI
 
 ## 🏗️ Architecture
 
@@ -30,6 +31,15 @@ This project demonstrates a complete machine learning pipeline from data preproc
 │   Java Frontend │ ──────────────► │  FastAPI Backend│ ─────────────► │   ML Pipeline   │
 │   (JSF/PrimeFaces)│                │   (Python)      │                │   (Scikit-learn)│
 └─────────────────┘                 └─────────────────┘                └─────────────────┘
+         │                                    ▲                                    ▲
+         │                                    │                                    │
+         │           Natural Language          │           HTTP/REST                │
+         │                                    │                                    │
+         ▼                                    │                                    │
+┌─────────────────┐    HTTP/REST    ┌─────────────────┐                            │
+│   AI Chatbot    │ ──────────────► │  Chatbot Service│ ───────────────────────────┘
+│   (OpenAI GPT-4o)│                │   (LangChain)   │
+└─────────────────┘                 └─────────────────┘
 ```
 
 ## 📁 Project Structure
@@ -46,6 +56,12 @@ test_project/
 │   ├── app.py               # FastAPI application
 │   ├── models/              # Pydantic data models
 │   └── notebooks/           # Educational content
+├── chatbot-service/          # AI Chatbot Service
+│   ├── app.py               # FastAPI chatbot application
+│   ├── chains/              # LangChain processing chains
+│   ├── utils/                # Schemas and HTTP client
+│   ├── requirements.txt     # Python dependencies
+│   └── .env                 # OpenAI API configuration
 ├── java-frontend/            # Java Web Application
 │   ├── src/main/java/       # Java source code
 │   ├── src/main/webapp/     # Web resources (JSF pages)
@@ -62,6 +78,7 @@ test_project/
 - **Docker Compose** v2.0+
 - **8GB+ RAM** (recommended)
 - **Git**
+- **OpenAI API Key** (for AI chatbot feature)
 
 ### One-Command Setup
 
@@ -71,7 +88,19 @@ test_project/
    cd java-ml-fastapi-fullstack-titanic
    ```
 
-2. **Run the Complete Application**
+2. **Configure OpenAI API Key** (for AI chatbot feature)
+   ```bash
+   # Copy the example environment file
+   cp chatbot-service/.env.example chatbot-service/.env
+   
+   # Edit the .env file and add your OpenAI API key
+   # OPENAI_API_KEY=your_api_key_here
+   # OPENAI_MODEL=gpt-4o-mini
+   ```
+   
+   > **Note**: Get your OpenAI API key from https://platform.openai.com/api-keys
+
+3. **Run the Complete Application**
    
    **Windows:**
    ```cmd
@@ -91,15 +120,18 @@ test_project/
    docker-compose up -d
    ```
 
-3. **Access the Application**
+4. **Access the Application**
    - **Frontend**: http://localhost:8080
    - **Backend API**: http://localhost:8000
+   - **AI Chatbot**: http://localhost:8010
    - **API Documentation**: http://localhost:8000/docs
+   - **Chatbot API**: http://localhost:8010/docs
 
 ### What Happens Automatically
 
 ✅ **ML Model Training**: Downloads Titanic dataset and trains Random Forest model  
 ✅ **FastAPI Backend**: Starts REST API server with trained model  
+✅ **AI Chatbot Service**: Launches OpenAI-powered natural language processing  
 ✅ **Java Frontend**: Builds and deploys JSF/PrimeFaces web application  
 ✅ **Network Configuration**: Sets up container communication  
 ✅ **Health Monitoring**: Built-in health checks for all services  
@@ -178,10 +210,52 @@ For detailed Docker documentation, see [DOCKER.md](DOCKER.md).
 Once running, you can:
 
 1. **Open the Frontend**: Navigate to http://localhost:8080
-2. **Test Sample Data**: Click "Load Sample Passengers" to see historical Titanic passengers
-3. **Make Predictions**: Fill out the form with passenger details and get survival predictions
-4. **Check API Health**: Monitor the backend API status in real-time
-5. **Explore API**: Visit http://localhost:8000/docs for interactive API documentation
+2. **Choose Your Approach**: 
+   - **Machine Learning Approach**: Traditional form-based predictions
+   - **AI Agent Approach**: Natural language chatbot predictions
+3. **Test Sample Data**: Click "Load Sample Passengers" to see historical Titanic passengers
+4. **Make Predictions**: Fill out the form with passenger details and get survival predictions
+5. **Try AI Chatbot**: Describe passengers in natural language like "A young woman, 22 years old, third class passenger from Ireland traveling with her family"
+6. **Check API Health**: Monitor the backend API status in real-time
+7. **Explore APIs**: Visit http://localhost:8000/docs and http://localhost:8010/docs for interactive API documentation
+
+## 🤖 AI Agent Feature
+
+The application now includes an advanced AI-powered chatbot that can understand natural language descriptions of Titanic passengers and provide survival predictions.
+
+### How It Works
+
+1. **Natural Language Input**: Describe a passenger in plain English
+2. **AI Processing**: OpenAI GPT-4o mini extracts structured passenger data
+3. **ML Prediction**: The extracted data is sent to the trained ML model
+4. **Intelligent Response**: Get predictions with detailed explanations
+
+### Example Conversations
+
+**Input**: "A young woman, 22 years old, third class passenger from Ireland traveling with her family. She paid 7 pounds for her ticket."
+
+**AI Response**: 
+- Extracts: Female, Age 22, Class 3, Fare £7, Parents=2
+- Prediction: High survival probability (78%)
+- Explanation: "Young women had higher survival rates, especially those traveling with family..."
+
+### Preset Examples
+
+The AI Agent includes 5 preset passenger scenarios for quick testing:
+
+1. **Young Italian Man**: Third class, traveling alone, low fare
+2. **Irish Family**: Third class woman with parents, medium fare  
+3. **Captain Smith**: First class captain, high fare, Southampton
+4. **Young Girl**: Second class child with parents, expensive ticket
+5. **Elderly Gentleman**: First class older man, premium fare
+
+### Technical Implementation
+
+- **OpenAI GPT-4o mini**: Natural language understanding
+- **LangChain**: Structured data extraction and processing
+- **Manual Fallback Rules**: Regex-based extraction for reliability
+- **FastAPI Integration**: Seamless communication with ML backend
+- **Java Frontend**: Modern UI with preset examples and detailed responses
 
 ### Sample Prediction
 
@@ -274,10 +348,18 @@ POST /predict/batch             # Batch predictions
 GET  /docs                      # API documentation
 ```
 
-### Example Request
+### AI Chatbot Service (`http://localhost:8010`)
 
+```http
+GET  /test                      # Simple connectivity test
+POST /predict-nl                # Natural language prediction
+GET  /docs                      # Chatbot API documentation
+```
+
+### Example Requests
+
+**Traditional ML API (`POST /predict`)**:
 ```json
-POST /predict
 {
   "pclass": "1",
   "name": "Mr. John Doe",
@@ -290,13 +372,42 @@ POST /predict
 }
 ```
 
-### Example Response
+**AI Chatbot API (`POST /predict-nl`)**:
+```json
+{
+  "message": "A young woman, 22 years old, third class passenger from Ireland traveling with her family. She paid 7 pounds for her ticket."
+}
+```
 
+### Example Responses
+
+**Traditional ML Response**:
 ```json
 {
   "survived": 1,
   "survival_probability": 0.75,
   "death_probability": 0.25
+}
+```
+
+**AI Chatbot Response**:
+```json
+{
+  "passenger": {
+    "pclass": 3,
+    "name": "Unknown Passenger",
+    "sex": "female",
+    "age": 22.0,
+    "sibsp": 0,
+    "parch": 2,
+    "fare": 7.0,
+    "embarked": "S"
+  },
+  "survived": 1,
+  "survival_probability": 0.78,
+  "death_probability": 0.22,
+  "reasoning": "Extracted passenger information from natural language",
+  "discussion": "Based on your description, I've analyzed the passenger information: This is a young woman (22 years old) traveling in third class with her family (parents). She paid 7 pounds for her ticket and embarked from Southampton. Young women had significantly higher survival rates on the Titanic, especially those traveling with family members. Third class passengers generally had lower survival rates, but being female and young were strong positive factors. The presence of family members (parents) also provided additional support during the evacuation. Overall, this passenger has a good chance of survival due to her age, gender, and family support."
 }
 ```
 
